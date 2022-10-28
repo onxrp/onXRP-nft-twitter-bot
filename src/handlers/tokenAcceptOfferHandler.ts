@@ -1,5 +1,5 @@
 import Twit from "twit";
-import { NFTokenAcceptOffer, parseNFTokenID, TransactionStream } from "xrpl";
+import { getBalanceChanges, NFTokenAcceptOffer, parseNFTokenID, TransactionStream } from "xrpl";
 
 import { log } from "../utils/logger";
 import { TokenIssuer } from "../configuration";
@@ -29,7 +29,13 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit)
         return;
     }
 
-    const account = transaction.Account;
+    const account = getAccountFromTransaction(tx);
+
+    if (account == null) {
+        log("Account is null. Probably something went wrong!");
+        return;
+    }
+
     const nftInfo = await getNftInfo(nftId);
 
     if (nftInfo == null) {
@@ -61,4 +67,14 @@ function getAmountFromTransaction(tx: TransactionStream): Amount {
     const affectedNodeWithNftId = tx.meta?.AffectedNodes.find((an: any) => an.DeletedNode?.LedgerEntryType === "NFTokenOffer");
     const amount = (affectedNodeWithNftId as any)?.DeletedNode?.FinalFields?.Amount;
     return amount;
+}
+
+function getAccountFromTransaction(tx: TransactionStream): string | undefined {
+    if (tx.meta == null) {
+        return;
+    }
+
+    const balanceChanges = getBalanceChanges(tx.meta);
+    const balanceChange = balanceChanges.find(bc => +bc.balances[0].value < 0);
+    return balanceChange?.account;
 }

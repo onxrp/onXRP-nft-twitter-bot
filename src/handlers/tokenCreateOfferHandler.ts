@@ -18,11 +18,17 @@ export async function tokenCreateOfferHandler(tx: TransactionStream, twit: Twit)
     const { Issuer: nftsIssuer } = parseNFTokenID(nftId);
 
     if (TokenIssuer !== nftsIssuer) {
-        log(`Issuer is different from required (required: ${TokenIssuer}, actual: ${nftsIssuer}). Skipping updates!`)
+        log(`Issuer is different from required (required: ${TokenIssuer}, actual: ${nftsIssuer}). Skipping updates!`);
         return;
     }
 
     const account = transaction.Account;
+
+    if (account === nftsIssuer) {
+        log("Account and issuer are same!. Skipping updates!");
+        return;
+    }
+
     const nftInfo = await getNftInfo(nftId);
 
     if (nftInfo == null) {
