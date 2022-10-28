@@ -3,6 +3,7 @@ import { Client, SubscribeRequest } from "xrpl";
 
 import { tokenCreateOfferHandler } from "./handlers/tokenCreateOfferHandler";
 import { tokenMintHandler } from "./handlers/tokenMintHandler";
+import { tokenAcceptOfferHandler } from "./handlers/tokenAcceptOfferHandler";
 import { AccessToken, AccessTokenSecret, ApiKey, ApiKeySecret, XrpServer } from "./configuration";
 import { log } from "./utils/logger";
 import { ValidTransactions } from "./constants";
@@ -45,9 +46,11 @@ export async function runApplication() {
                     await tokenCreateOfferHandler(tx, twit);
                     break;
                 case "NFTokenAcceptOffer":
-                    log(JSON.stringify(tx));
+                    await tokenAcceptOfferHandler(tx, twit);
                     break;
             }
+
+            log(`Processed update for transaction ${transactionType}`);
         }
     });
 };

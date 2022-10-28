@@ -1,10 +1,10 @@
 import Twit from "twit";
 import { NFTokenCreateOffer, parseNFTokenID, TransactionStream } from "xrpl";
-import { IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
 import { TokenIssuer } from "../configuration";
 import { log } from "../utils/logger";
 import { TweetFormatter } from "../utils/tweetFormatter";
+import { getNftInfo, uploadUriToTwitterMedia } from "../utils/helpers";
 
 export async function tokenCreateOfferHandler(tx: TransactionStream, twit: Twit) {
     const transaction = tx.transaction as NFTokenCreateOffer;
@@ -12,15 +12,6 @@ export async function tokenCreateOfferHandler(tx: TransactionStream, twit: Twit)
     if (transaction == null) {
         log("Transaction is null!");
         return;
-    }
-
-    const offerAmount = transaction.Amount;
-    let formattedAmount = null;
-
-    if ((offerAmount as IssuedCurrencyAmount).value != null) {
-        formattedAmount = `${(offerAmount as IssuedCurrencyAmount).value}${(offerAmount as IssuedCurrencyAmount).currency}`;
-    } else {
-        formattedAmount = `${+offerAmount / 1000000}XRP`;
     }
 
     const nftId = transaction.NFTokenID;
@@ -32,8 +23,21 @@ export async function tokenCreateOfferHandler(tx: TransactionStream, twit: Twit)
     }
 
     const account = transaction.Account;
+    const nftInfo = await getNftInfo(nftId);
 
-    await twit.post("statuses/update", TweetFormatter.getCreateOfferMessage(account, formattedAmount, nftId, nftsIssuer));
+    if (nftInfo == null) {
+        log("Nft info is null. Probably something went wrong!");
+        return;
+    }
+
+    const mediaId = await uploadUriToTwitterMedia(nftInfo.image, twit);
+
+    if (mediaId == null) {
+        log("Uploaded media id is null. Probably something went wrong!");
+        return;
+    }
+
+    await twit.post("statuses/update", TweetFormatter.getCreateOfferMessage(account, transaction.Amount, nftId, nftsIssuer, mediaId));
 
     log("Successfully posted new tweet with updates!");
 }

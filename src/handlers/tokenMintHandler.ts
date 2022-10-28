@@ -1,10 +1,11 @@
-import axios from "axios";
 import Twit from "twit";
-import { convertHexToString, NFTokenMint, parseNFTokenID, TransactionStream } from "xrpl";
+import { NFTokenMint, parseNFTokenID, TransactionStream } from "xrpl";
+import lodash from "lodash";
 
-import { IpfsUrl, TokenIssuer } from "../configuration";
+import { TokenIssuer } from "../configuration";
 import { log } from "../utils/logger";
 import { TweetFormatter } from "../utils/tweetFormatter";
+import { uploadUriToTwitterMedia } from "../utils/helpers";
 
 export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
     const transaction = tx.transaction as NFTokenMint;
@@ -15,20 +16,14 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
         return;
     }
 
-    const imageBase64 = await convertNftUriToBase64(uri);
-
-    const uploadResponse = await twit.post("media/upload", {
-        media_data: imageBase64,
-    });
-
-    const mediaId = (uploadResponse.data as any)?.media_id_string;
+    const mediaId = await uploadUriToTwitterMedia(uri, twit);
 
     if (mediaId == null) {
         log("Uploaded media id is null. Probably something went wrong!");
         return;
     }
 
-    const nftId = getNftIdFromTransaction(tx);
+    const nftId = getNftIdFromTransaction(tx, uri);
 
     if (nftId == null) {
         log("Nft id from transaction is null!");
@@ -54,16 +49,27 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
     log("Successfully posted new tweet with updates!");
 }
 
-function getNftIdFromTransaction(tx: TransactionStream): string | undefined {
-    const affectedNodeWithNftId = tx.meta?.AffectedNodes.find((an: any) => an.ModifiedNode?.FinalFields?.NFTokens != null);
-    const nftId = (affectedNodeWithNftId as any)?.ModifiedNode?.FinalFields?.NFTokens[0]?.NFToken?.NFTokenID;
-    return nftId;
-}
+function getNftIdFromTransaction(tx: TransactionStream, uri: string): string | undefined {
+    const affectedNodes = tx.meta?.AffectedNodes;
 
-async function convertNftUriToBase64(uri: string) {
-    const imageAddress = convertHexToString(uri);
-    const imageUrl = `${IpfsUrl}/${imageAddress.substring(7)}`;
-    const imageFileResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    const imageBase64 = Buffer.from(imageFileResponse.data, 'binary').toString('base64');
-    return imageBase64;
+    if (affectedNodes == null) {
+        return;
+    }
+
+    const nftTokenPage: any = affectedNodes.find(an => (an as any).ModifiedNode?.LedgerEntryType === "NFTokenPage");
+
+    if (nftTokenPage == null) {
+        return;
+    }
+
+    const finalTokens: any[] = nftTokenPage.ModifiedNode.FinalFields.NFTokens;
+    const previousTokens: any[] = nftTokenPage.ModifiedNode.PreviousFields.NFTokens;
+
+    if (finalTokens == null || previousTokens == null) {
+        return;
+    }
+
+    const newTokens = lodash.differenceBy(finalTokens, previousTokens, "NFToken.NFTokenID");
+
+    return newTokens[0]?.NFToken?.NFTokenID;
 }
