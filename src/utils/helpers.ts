@@ -5,18 +5,18 @@ import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
 import { IpfsUrl, XrpClioServer } from "../configuration";
 
-export async function downloadImageAsBase64(url: string): Promise<string | null> {
+export async function downloadImageAsBase64(url: string): Promise<string | undefined> {
     try {
         const imageFileResponse = await axios.get(url, { responseType: 'arraybuffer' });
         const imageBase64 = Buffer.from(imageFileResponse.data, 'binary').toString('base64');
         return imageBase64;
     }
     catch (err) {
-        return null;
+        return;
     }
 }
 
-export async function getNftInfo(nftId: string): Promise<{ image: string } | null> {
+export async function getNftInfo(nftId: string): Promise<{ image: string } | undefined> {
     try {
         const clioClient = new Client(XrpClioServer);
         await clioClient.connect();
@@ -39,22 +39,30 @@ export async function getNftInfo(nftId: string): Promise<{ image: string } | nul
         // return metadataResponse.data;
     }
     catch (err) {
-        return null;
+        return;
     }
 }
 
 export function convertNftUriToIpfsLink(uri: string) {
+    if (uri == null) {
+        return;
+    }
+
     const imageAddress = convertHexToString(uri) || uri;
     const imageUrl = `${IpfsUrl}/${imageAddress.substring(7)}`;
     return imageUrl;
 }
 
-export async function uploadUriToTwitterMedia(uri: string, twit: Twit): Promise<string[] | null> {
+export async function uploadUriToTwitterMedia(uri: string, twit: Twit): Promise<string[] | undefined> {
     const imageUrl = convertNftUriToIpfsLink(uri);
+    if (imageUrl == null) {
+        return;
+    }
+
     const imageBase64 = await downloadImageAsBase64(imageUrl);
 
     if (imageBase64 == null) {
-        return null;
+        return;
     }
 
     const uploadResponse = await twit.post("media/upload", {
