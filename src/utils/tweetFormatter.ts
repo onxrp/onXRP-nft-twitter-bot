@@ -10,7 +10,7 @@ export class TweetFormatter {
         const formattedAccount = account.substring(0, 8);
         const marketUrl = `${MarketplaceUrl}/${nftId}`;
         return {
-            status: `XPUNKS Sale!\n${formattedAccount} minted NFT with ID ${partialNftId}.\n${marketUrl}`,
+            status: `XPUNKS Sale!\n${formattedAccount} minted NFT #${partialNftId}.\n${marketUrl}`,
             media_ids: mediaId,
         };
     }
