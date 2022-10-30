@@ -23,13 +23,6 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
         return;
     }
 
-    const mediaId = await uploadUriToTwitterMedia(uri, twit);
-
-    if (mediaId == null) {
-        log(`Uploaded media id for image url ${uri} and token id ${nftId} is null. Probably something went wrong!`);
-        return;
-    }
-
     const { Issuer: nftsIssuer } = parseNFTokenID(nftId);
 
     if (TokenIssuer !== nftsIssuer) {
@@ -41,6 +34,13 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
 
     if (account == null) {
         log("Account address from transaction is null!");
+        return;
+    }
+
+    const mediaId = await uploadUriToTwitterMedia(uri, twit);
+
+    if (mediaId == null) {
+        log(`Uploaded media id for image url ${uri} and token id ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
