@@ -11,3 +11,4 @@ export const AccessToken = process.env.ACCESS_TOKEN as string;
 export const AccessTokenSecret = process.env.ACCESS_TOKEN_SECRET as string;
 
 export const MarketplaceUrl = process.env.MARKETPLACE_URL as string;
+export const ApiMetadataUrl = process.env.API_METADATA_URL as string;

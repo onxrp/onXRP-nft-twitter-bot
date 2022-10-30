@@ -3,7 +3,7 @@ import Twit from "twit";
 import { Client, convertHexToString } from "xrpl";
 import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
-import { IpfsUrl, XrpClioServer } from "../configuration";
+import { ApiMetadataUrl, IpfsUrl, XrpClioServer } from "../configuration";
 import { log } from "./logger";
 
 export async function downloadImageAsBase64(url: string): Promise<string | undefined> {
@@ -29,9 +29,17 @@ export async function getNftInfo(nftId: string): Promise<{ image: string } | und
 
         const ipfsUri = (result as any).uri;
 
+        if (ipfsUri != null) {
+            return {
+                image: ipfsUri,
+            };
+        }
+
+        const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`);
+
         return {
-            image: ipfsUri,
-        };
+            image: metadataResponse.data?.image,
+        }
 
         // Code below needed when ipfs uri leads to metadata instead of image.
 
