@@ -18,32 +18,32 @@ export async function tokenCreateOfferHandler(tx: TransactionStream, twit: Twit)
     const { Issuer: nftsIssuer } = parseNFTokenID(nftId);
 
     if (TokenIssuer !== nftsIssuer) {
-        log(`Issuer is different from required (required: ${TokenIssuer}, actual: ${nftsIssuer}). Skipping updates!`);
+        log(`Issuer is different for token ${nftId} from required (required: ${TokenIssuer}, actual: ${nftsIssuer}). Skipping updates!`);
         return;
     }
 
     const account = transaction.Account;
 
     if (account === nftsIssuer) {
-        log("Account and issuer are same!. Skipping updates!");
+        log(`Account ${account} and issuer ${nftsIssuer} are same!. Skipping updates!`);
         return;
     }
 
     const nftInfo = await getNftInfo(nftId);
 
     if (nftInfo == null) {
-        log("Nft info is null. Probably something went wrong!");
+        log(`Nft info for token ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
     const mediaId = await uploadUriToTwitterMedia(nftInfo.image, twit);
 
     if (mediaId == null) {
-        log("Uploaded media id is null. Probably something went wrong!");
+        log(`Uploaded media id for image url ${nftInfo.image} and token id ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
     await twit.post("statuses/update", TweetFormatter.getCreateOfferMessage(account, transaction.Amount, nftId, nftsIssuer, mediaId));
 
-    log("Successfully posted new tweet with updates!");
+    log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }

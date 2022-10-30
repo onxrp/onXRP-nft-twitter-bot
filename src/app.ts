@@ -37,6 +37,7 @@ export async function runApplication() {
         const transactionType = tx?.transaction?.TransactionType;
         if (transactionType != null && ValidTransactions.indexOf(transactionType) >= 0) {
             log(`Received update for transaction ${transactionType}`);
+            log(`TX ${JSON.stringify(tx.transaction)}`);
 
             switch (transactionType) {
                 case "NFTokenMint":

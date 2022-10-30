@@ -16,17 +16,17 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
         return;
     }
 
-    const mediaId = await uploadUriToTwitterMedia(uri, twit);
-
-    if (mediaId == null) {
-        log("Uploaded media id is null. Probably something went wrong!");
-        return;
-    }
-
     const nftId = getNftIdFromTransaction(tx, uri);
 
     if (nftId == null) {
-        log("Nft id from transaction is null!");
+        log(`Nft id from transaction with image uri ${uri} is null!`);
+        return;
+    }
+
+    const mediaId = await uploadUriToTwitterMedia(uri, twit);
+
+    if (mediaId == null) {
+        log(`Uploaded media id for image url ${uri} and token id ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
@@ -46,7 +46,7 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
 
     await twit.post("statuses/update", TweetFormatter.getMintMessage(account, nftId, mediaId));
 
-    log("Successfully posted new tweet with updates!");
+    log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }
 
 function getNftIdFromTransaction(tx: TransactionStream, uri: string): string | undefined {

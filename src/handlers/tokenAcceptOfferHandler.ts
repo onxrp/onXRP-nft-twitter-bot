@@ -25,7 +25,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit)
     const { Issuer: nftsIssuer } = parseNFTokenID(nftId);
 
     if (TokenIssuer !== nftsIssuer) {
-        log(`Issuer is different from required (required: ${TokenIssuer}, actual: ${nftsIssuer}). Skipping updates!`)
+        log(`Issuer is different for token ${nftId} from required (required: ${TokenIssuer}, actual: ${nftsIssuer}). Skipping updates!`);
         return;
     }
 
@@ -39,14 +39,14 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit)
     const nftInfo = await getNftInfo(nftId);
 
     if (nftInfo == null) {
-        log("Nft info is null. Probably something went wrong!");
+        log(`Nft info for token id ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
     const mediaId = await uploadUriToTwitterMedia(nftInfo.image, twit);
 
     if (mediaId == null) {
-        log("Uploaded media id is null. Probably something went wrong!");
+        log(`Uploaded media id for image url ${nftInfo.image} and token id ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
@@ -54,7 +54,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit)
 
     await twit.post("statuses/update", TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, mediaId));
 
-    log("Successfully posted new tweet with updates!");
+    log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }
 
 function getNftIdFromTransaction(tx: TransactionStream): string | undefined {
