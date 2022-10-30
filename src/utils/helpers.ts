@@ -80,6 +80,7 @@ export async function uploadUriToTwitterMedia(uri: string, twit: Twit): Promise<
     const uploadResponse = await twit.post("media/upload", {
         media_data: imageBase64,
     });
+    log(`Upload response ${JSON.stringify(uploadResponse)}`);
     const mediaId = (uploadResponse.data as any)?.media_id_string;
 
     return mediaId as string[];
