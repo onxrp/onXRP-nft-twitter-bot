@@ -4,6 +4,7 @@ import { Client, convertHexToString } from "xrpl";
 import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
 import { IpfsUrl, XrpClioServer } from "../configuration";
+import { log } from "./logger";
 
 export async function downloadImageAsBase64(url: string): Promise<string | undefined> {
     try {
@@ -56,15 +57,18 @@ export function convertNftUriToIpfsLink(uri: string) {
 export async function uploadUriToTwitterMedia(uri: string, twit: Twit): Promise<string[] | undefined> {
     const imageUrl = convertNftUriToIpfsLink(uri);
     if (imageUrl == null) {
+        log(`Error when converting ${uri} to ipfs link`);
         return;
     }
 
     const imageBase64 = await downloadImageAsBase64(imageUrl);
 
     if (imageBase64 == null) {
+        log(`Error when converting ${imageUrl} to base64`);
         return;
     }
 
+    log(`Uploading ${imageUrl} to twitter`);
     const uploadResponse = await twit.post("media/upload", {
         media_data: imageBase64,
     });
