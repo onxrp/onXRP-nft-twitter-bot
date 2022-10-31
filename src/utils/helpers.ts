@@ -1,5 +1,4 @@
 import axios from "axios";
-import Twit from "twit";
 import { Client, convertHexToString } from "xrpl";
 import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
@@ -33,21 +32,21 @@ export async function downloadImageAsBase64(url: string): Promise<string | undef
 
 export async function getNftInfo(nftId: string): Promise<{ image: string } | undefined> {
     try {
-        const clioClient = new Client(XrpClioServer);
-        await clioClient.connect();
+        // const clioClient = new Client(XrpClioServer);
+        // await clioClient.connect();
 
-        const { result } = await clioClient.request({
-            command: "nft_info",
-            nft_id: nftId,
-        });
+        // const { result } = await clioClient.request({
+        //     command: "nft_info",
+        //     nft_id: nftId,
+        // });
 
-        const ipfsUri = (result as any).uri;
+        // const ipfsUri = (result as any).uri;
 
-        if (ipfsUri != null) {
-            return {
-                image: ipfsUri,
-            };
-        }
+        // if (ipfsUri != null) {
+        //     return {
+        //         image: ipfsUri,
+        //     };
+        // }
 
         const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`);
 
