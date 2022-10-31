@@ -30,23 +30,27 @@ export async function downloadImageAsBase64(url: string): Promise<string | undef
     }
 }
 
-export async function getNftInfo(nftId: string): Promise<{ image: string } | undefined> {
+export async function getNftInfo(nftId: string): Promise<{ image: string | undefined } | undefined> {
     try {
-        // const clioClient = new Client(XrpClioServer);
-        // await clioClient.connect();
+        return {
+            image: undefined,
+        }
 
-        // const { result } = await clioClient.request({
-        //     command: "nft_info",
-        //     nft_id: nftId,
-        // });
+        const clioClient = new Client(XrpClioServer);
+        await clioClient.connect();
 
-        // const ipfsUri = (result as any).uri;
+        const { result } = await clioClient.request({
+            command: "nft_info",
+            nft_id: nftId,
+        });
 
-        // if (ipfsUri != null) {
-        //     return {
-        //         image: ipfsUri,
-        //     };
-        // }
+        const ipfsUri = (result as any).uri;
+
+        if (ipfsUri != null) {
+            return {
+                image: ipfsUri,
+            };
+        }
 
         const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`);
 
