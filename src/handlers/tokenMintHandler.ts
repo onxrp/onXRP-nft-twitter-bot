@@ -4,7 +4,6 @@ import lodash from "lodash";
 import { TokenIssuer } from "../configuration";
 import { log } from "../utils/logger";
 import { TweetFormatter } from "../utils/tweetFormatter";
-import { uploadUriToTwitterMedia } from "../utils/helpers";
 import { TwitterClient } from "../utils/twitterClient";
 
 export async function tokenMintHandler(tx: TransactionStream, twitterClient: TwitterClient) {
@@ -37,14 +36,7 @@ export async function tokenMintHandler(tx: TransactionStream, twitterClient: Twi
         return;
     }
 
-    const mediaId = await uploadUriToTwitterMedia(uri, twitterClient);
-
-    if (mediaId == null) {
-        log(`Uploaded media id for image url ${uri} and token id ${nftId} is null. Probably something went wrong!`);
-        return;
-    }
-
-    await twitterClient.tweet(TweetFormatter.getMintMessage(account, nftId), mediaId)
+    await twitterClient.tweet(TweetFormatter.getMintMessage(account, nftId), uri)
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }

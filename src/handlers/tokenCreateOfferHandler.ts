@@ -3,7 +3,7 @@ import { NFTokenCreateOffer, parseNFTokenID, TransactionStream } from "xrpl";
 import { TokenIssuer } from "../configuration";
 import { log } from "../utils/logger";
 import { TweetFormatter } from "../utils/tweetFormatter";
-import { getNftInfo, uploadUriToTwitterMedia } from "../utils/helpers";
+import { getNftInfo } from "../utils/helpers";
 import { TwitterClient } from "../utils/twitterClient";
 
 export async function tokenCreateOfferHandler(tx: TransactionStream, twitterClient: TwitterClient) {
@@ -36,14 +36,7 @@ export async function tokenCreateOfferHandler(tx: TransactionStream, twitterClie
         return;
     }
 
-    const mediaId = await uploadUriToTwitterMedia(nftInfo.image, twitterClient);
-
-    if (mediaId == null) {
-        log(`Uploaded media id for image url ${nftInfo.image} and token id ${nftId} is null. Probably something went wrong!`);
-        return;
-    }
-
-    await twitterClient.tweet(TweetFormatter.getCreateOfferMessage(account, transaction.Amount, nftId, nftsIssuer), mediaId);
+    await twitterClient.tweet(TweetFormatter.getCreateOfferMessage(account, transaction.Amount, nftId, nftsIssuer), nftInfo.image);
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }

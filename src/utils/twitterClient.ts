@@ -3,11 +3,11 @@ import { TwitterApi } from 'twitter-api-v2';
 import { fileTypeFromBuffer } from "file-type";
 
 import { AccessToken, AccessTokenSecret, ApiKey, ApiKeySecret } from "../configuration";
-import { downloadImageAsBase64, downloadImageAsBuffer } from "./helpers";
+import { downloadImageAsBase64, downloadImageAsBuffer, uploadUriToTwitterMedia } from "./helpers";
 import { log } from "./logger";
 
 export interface TwitterClient {
-    tweet(message: string, mediaId?: any): Promise<any>;
+    tweet(message: string, image?: any): Promise<any>;
     postMedia(url: string): Promise<string[] | string | undefined>;
 }
 
@@ -43,13 +43,22 @@ export class TwitJsClient implements TwitterClient {
         return mediaId;
     }
 
-    async tweet(message: string, mediaId?: any): Promise<any> {
+    async tweet(message: string, image?: any): Promise<any> {
         const statusUpdate: Twit.Params = {
             status: message,
         }
 
-        if (mediaId != null) {
-            statusUpdate.media_ids = mediaId;
+        if (image != null) {
+            const mediaId = await uploadUriToTwitterMedia(image, this);
+
+            if (mediaId != null) {
+                statusUpdate.media_ids = mediaId;
+            } else {
+                log(`Uploaded media id for image url ${image} is null. Probably something went wrong!`);
+
+                // Uncomment this if you want to skip creating tweet when image is null
+                // return;
+            }
         }
 
         await this.twit.post("statuses/update", statusUpdate);
@@ -70,14 +79,23 @@ export class TwitterApiV2Client implements TwitterClient {
         });
     }
 
-    async tweet(message: string, mediaId?: any): Promise<any> {
+    async tweet(message: string, image?: any): Promise<any> {
         const statusUpdate: any = {
             text: message,
         }
 
-        if (mediaId != null) {
-            statusUpdate.media = {
-                media_ids: [mediaId],
+        if (image != null) {
+            const mediaId = await uploadUriToTwitterMedia(image, this);
+
+            if (mediaId != null) {
+                statusUpdate.media = {
+                    media_ids: [mediaId],
+                }
+            } else {
+                log(`Uploaded media id for image url ${image} is null. Probably something went wrong!`);
+
+                // Uncomment this if you want to skip creating tweet when image is null
+                // return;
             }
         }
 
