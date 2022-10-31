@@ -37,7 +37,7 @@ export async function runApplication() {
 
             switch (transactionType) {
                 case "NFTokenMint":
-                    await tokenMintHandler(tx, twitterClient);
+                    // await tokenMintHandler(tx, twitterClient);
                     break;
                 case "NFTokenCreateOffer":
                     await tokenCreateOfferHandler(tx, twitterClient);
