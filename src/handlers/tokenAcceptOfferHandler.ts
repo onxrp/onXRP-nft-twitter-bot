@@ -1,4 +1,3 @@
-import Twit from "twit";
 import { getBalanceChanges, NFTokenAcceptOffer, parseNFTokenID, TransactionStream } from "xrpl";
 
 import { log } from "../utils/logger";
@@ -6,8 +5,9 @@ import { TokenIssuer } from "../configuration";
 import { TweetFormatter } from "../utils/tweetFormatter";
 import { getNftInfo, uploadUriToTwitterMedia } from "../utils/helpers";
 import { Amount } from "xrpl/dist/npm/models/common";
+import { TwitterClient } from "../utils/twitterClient";
 
-export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit) {
+export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClient: TwitterClient) {
     const transaction = tx.transaction as NFTokenAcceptOffer;
 
     if (transaction == null) {
@@ -43,7 +43,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit)
         return;
     }
 
-    const mediaId = await uploadUriToTwitterMedia(nftInfo.image, twit);
+    const mediaId = await uploadUriToTwitterMedia(nftInfo.image, twitterClient);
 
     if (mediaId == null) {
         log(`Uploaded media id for image url ${nftInfo.image} and token id ${nftId} is null. Probably something went wrong!`);
@@ -52,7 +52,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twit: Twit)
 
     const amount = getAmountFromTransaction(tx);
 
-    await twit.post("statuses/update", TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, mediaId));
+    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer), mediaId);
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }

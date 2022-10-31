@@ -5,11 +5,23 @@ import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
 import { ApiMetadataUrl, IpfsUrl, XrpClioServer } from "../configuration";
 import { log } from "./logger";
+import { TwitterClient } from "./twitterClient";
+
+export async function downloadImageAsBuffer(url: string): Promise<Buffer | undefined> {
+    try {
+        const imageFileResponse = await axios.get(url, { responseType: 'arraybuffer' });
+        const buffer = Buffer.from(imageFileResponse.data, 'binary');
+        return buffer;
+    }
+    catch (err) {
+        return;
+    }
+}
 
 export async function downloadImageAsBase64(url: string): Promise<string | undefined> {
     try {
-        const imageFileResponse = await axios.get(url, { responseType: 'arraybuffer' });
-        const imageBase64 = Buffer.from(imageFileResponse.data, 'binary').toString('base64');
+        const buffer = await downloadImageAsBuffer(url);
+        const imageBase64 = buffer?.toString('base64');
         return imageBase64;
     }
     catch (err) {
@@ -62,26 +74,16 @@ export function convertNftUriToIpfsLink(uri: string) {
     return imageUrl;
 }
 
-export async function uploadUriToTwitterMedia(uri: string, twit: Twit): Promise<string[] | undefined> {
+export async function uploadUriToTwitterMedia(uri: string, twitterClient: TwitterClient): Promise<string[] | undefined> {
     const imageUrl = convertNftUriToIpfsLink(uri);
     if (imageUrl == null) {
         log(`Error when converting ${uri} to ipfs link`);
         return;
     }
 
-    const imageBase64 = await downloadImageAsBase64(imageUrl);
-
-    if (imageBase64 == null) {
-        log(`Error when converting ${imageUrl} to base64`);
-        return;
-    }
-
     log(`Uploading ${imageUrl} to twitter`);
-    const uploadResponse = await twit.post("media/upload", {
-        media_data: imageBase64,
-    });
-    log(`Upload response ${JSON.stringify(uploadResponse)}`);
-    const mediaId = (uploadResponse.data as any)?.media_id_string;
+
+    const mediaId = await twitterClient.postMedia(imageUrl);
 
     return mediaId as string[];
 }

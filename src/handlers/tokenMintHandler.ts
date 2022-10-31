@@ -1,4 +1,3 @@
-import Twit from "twit";
 import { NFTokenMint, parseNFTokenID, TransactionStream } from "xrpl";
 import lodash from "lodash";
 
@@ -6,8 +5,9 @@ import { TokenIssuer } from "../configuration";
 import { log } from "../utils/logger";
 import { TweetFormatter } from "../utils/tweetFormatter";
 import { uploadUriToTwitterMedia } from "../utils/helpers";
+import { TwitterClient } from "../utils/twitterClient";
 
-export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
+export async function tokenMintHandler(tx: TransactionStream, twitterClient: TwitterClient) {
     const transaction = tx.transaction as NFTokenMint;
     const uri = transaction.URI;
 
@@ -37,14 +37,14 @@ export async function tokenMintHandler(tx: TransactionStream, twit: Twit) {
         return;
     }
 
-    const mediaId = await uploadUriToTwitterMedia(uri, twit);
+    const mediaId = await uploadUriToTwitterMedia(uri, twitterClient);
 
     if (mediaId == null) {
         log(`Uploaded media id for image url ${uri} and token id ${nftId} is null. Probably something went wrong!`);
         return;
     }
 
-    await twit.post("statuses/update", TweetFormatter.getMintMessage(account, nftId, mediaId));
+    await twitterClient.tweet(TweetFormatter.getMintMessage(account, nftId), mediaId)
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }
