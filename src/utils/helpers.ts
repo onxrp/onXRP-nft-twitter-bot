@@ -94,11 +94,17 @@ export async function uploadUriToTwitterMedia(uri: string, twitterClient: Twitte
     return mediaId as string[];
 }
 
+const currencyMap: Record<string, string> = {
+    "5850554E4B000000000000000000000000000000": "XPUNK"
+};
+
 export function formatAmount(amount: Amount) {
     let formattedAmount = null;
 
     if ((amount as IssuedCurrencyAmount).value != null) {
-        formattedAmount = `${(amount as IssuedCurrencyAmount).value}${(amount as IssuedCurrencyAmount).currency}`;
+        const cAmount = (amount as IssuedCurrencyAmount);
+        const currency = currencyMap[cAmount.currency] || cAmount.currency;
+        formattedAmount = `${cAmount.value}${currency}`;
     } else {
         formattedAmount = `${(+amount / 1000000)}XRP`;
     }
