@@ -14,6 +14,7 @@ export async function downloadImageAsBuffer(url: string): Promise<Buffer | undef
         return buffer;
     }
     catch (err) {
+        log(`Error when downloading image as buffer! ${JSON.stringify(err)}`);
         return;
     }
 }
@@ -25,6 +26,7 @@ export async function downloadImageAsBase64(url: string): Promise<string | undef
         return imageBase64;
     }
     catch (err) {
+        log(`Error when downloading image as base64! ${JSON.stringify(err)}`);
         return;
     }
 }
@@ -60,6 +62,7 @@ export async function getNftInfo(nftId: string): Promise<{ image: string } | und
         // return metadataResponse.data;
     }
     catch (err) {
+        log(`Error when fetching nft info! ${JSON.stringify(err)}`);
         return;
     }
 }
