@@ -1,1 +1,5 @@
-export const ValidTransactions = ["NFTokenMint", "NFTokenCreateOffer", "NFTokenAcceptOffer"];
+export const ValidTransactions = [
+    // "NFTokenMint",
+    "NFTokenCreateOffer",
+    "NFTokenAcceptOffer"
+];
