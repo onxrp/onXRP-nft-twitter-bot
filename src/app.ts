@@ -23,15 +23,17 @@ export async function runApplication() {
         log(`Successfully connected to XRP server ${XrpServer}!`);
         log("Starting interval to subscribe for XRP events!");
 
-        intervalTimer = setInterval(async () => {
+        async function subscribe() {
             await client.request({
                 id: `Check all transactions in XRP №${checkNumber++}`,
                 command: "subscribe",
                 streams: ["transactions"],
             });
-
             log("Subscribed for updates from XRP!");
-        }, 600000); // 10 minutes
+        }
+
+        await subscribe();
+        intervalTimer = setInterval(subscribe, 600000); // 10 minutes
 
         client.on("transaction", async tx => {
             const transactionType = tx?.transaction?.TransactionType;
