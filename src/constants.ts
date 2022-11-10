@@ -1,5 +1,5 @@
 export const ValidTransactions = [
-    // "NFTokenMint",
-    "NFTokenCreateOffer",
+    "NFTokenMint",
+    // "NFTokenCreateOffer",
     "NFTokenAcceptOffer"
 ];
