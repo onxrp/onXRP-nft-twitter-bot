@@ -40,13 +40,13 @@ export async function getNftInfo(nftId: string): Promise<{ image: string | undef
             nft_id: nftId,
         });
 
-        const { uri, nft_taxon } = result as any;
+        const { uri, nft_sequence } = result as any;
         const isJson = (uri as string)?.includes(".json") || false;
 
         if (uri != null && !isJson) {
             return {
                 image: uri,
-                nftNumber: nft_taxon,
+                nftNumber: nft_sequence,
             };
         }
 
@@ -54,7 +54,7 @@ export async function getNftInfo(nftId: string): Promise<{ image: string | undef
 
         return {
             image: metadataResponse.data?.image,
-            nftNumber: nft_taxon,
+            nftNumber: nft_sequence,
         }
 
         // Code below needed when ipfs uri leads to metadata instead of image.
