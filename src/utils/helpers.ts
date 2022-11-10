@@ -30,12 +30,8 @@ export async function downloadImageAsBase64(url: string): Promise<string | undef
     }
 }
 
-export async function getNftInfo(nftId: string): Promise<{ image: string | undefined } | undefined> {
+export async function getNftInfo(nftId: string): Promise<{ image: string | undefined, nftNumber: string | undefined } | undefined> {
     try {
-        return {
-            image: undefined,
-        }
-
         const clioClient = new Client(XrpClioServer);
         await clioClient.connect();
 
@@ -44,11 +40,13 @@ export async function getNftInfo(nftId: string): Promise<{ image: string | undef
             nft_id: nftId,
         });
 
-        const ipfsUri = (result as any).uri;
+        const { uri, nft_taxon } = result as any;
+        const isJson = (uri as string)?.includes(".json") || false;
 
-        if (ipfsUri != null) {
+        if (uri != null && !isJson) {
             return {
-                image: ipfsUri,
+                image: uri,
+                nftNumber: nft_taxon,
             };
         }
 
@@ -56,6 +54,7 @@ export async function getNftInfo(nftId: string): Promise<{ image: string | undef
 
         return {
             image: metadataResponse.data?.image,
+            nftNumber: nft_taxon,
         }
 
         // Code below needed when ipfs uri leads to metadata instead of image.
