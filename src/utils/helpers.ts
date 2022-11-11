@@ -132,7 +132,7 @@ export async function getCoinPrice(amount: Amount) {
             xrpAmount = +cAmount.value * averagePrice;
         }
         else {
-            xrpAmount = +amount;
+            xrpAmount = (+amount / 1000000);
         }
 
         const priceResult = await axios.get(CoinmarketcapPriceConversionUrl, {
