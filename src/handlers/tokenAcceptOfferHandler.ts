@@ -3,7 +3,7 @@ import { getBalanceChanges, NFTokenAcceptOffer, parseNFTokenID, TransactionStrea
 import { log } from "../utils/logger";
 import { TokenIssuer } from "../configuration";
 import { TweetFormatter } from "../utils/tweetFormatter";
-import { getNftInfo } from "../utils/helpers";
+import { getCoinPrice, getNftInfo } from "../utils/helpers";
 import { Amount } from "xrpl/dist/npm/models/common";
 import { TwitterClient } from "../utils/twitterClient";
 
@@ -44,8 +44,9 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
     }
 
     const amount = getAmountFromTransaction(tx);
+    const usdPrice = await getCoinPrice(amount);
 
-    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, nftInfo.nftNumber), nftInfo.image);
+    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, nftInfo.nftNumber, usdPrice), nftInfo.image);
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }
