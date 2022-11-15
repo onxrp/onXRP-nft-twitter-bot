@@ -1,4 +1,5 @@
 import axios from "axios";
+import { fileTypeFromBuffer } from "file-type";
 import { Client, convertHexToString } from "xrpl";
 import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
@@ -10,6 +11,12 @@ export async function downloadImageAsBuffer(url: string): Promise<Buffer | undef
     try {
         const imageFileResponse = await axios.get(url, { responseType: 'arraybuffer' });
         const buffer = Buffer.from(imageFileResponse.data, 'binary');
+        const fileType = await fileTypeFromBuffer(buffer);
+
+        if (fileType == null) {
+            return;
+        }
+
         return buffer;
     }
     catch (err) {
@@ -94,12 +101,13 @@ export async function uploadUriToTwitterMedia(uri: string, twitterClient: Twitte
 }
 
 const currencyMap: Record<string, string> = {
-    "5850554E4B000000000000000000000000000000": "XPUNK"
+    "5850554E4B000000000000000000000000000000": "XPUNK",
+    "OXP": "OXP",
 };
 
 const currencyIssuerMap: Record<string, string> = {
     "5850554E4B000000000000000000000000000000": "rHEL3bM4RFsvF8kbQj3cya8YiDvjoEmxLq",
-    "OXP": "rrno7Nj4RkFJLzC4nRaZiLF5aHwcTVon3d"
+    "OXP": "rrno7Nj4RkFJLzC4nRaZiLF5aHwcTVon3d",
 }
 
 export function formatAmount(amount: Amount) {
@@ -151,5 +159,19 @@ export async function getCoinPrice(amount: Amount) {
     catch (err) {
         log(`Error when fetching coin price! ${JSON.stringify(err)}`);
         return;
+    }
+}
+
+export function checkAmountValidity(amount: Amount) {
+    if ((amount as IssuedCurrencyAmount).value != null) {
+        const cAmount = (amount as IssuedCurrencyAmount);
+        const mappedCurrency = currencyMap[cAmount.currency];
+        if (mappedCurrency == null || mappedCurrency === "XPUNK") {
+            return false;
+        }
+        return true;
+    } else {
+        const xrpAmount = (+amount / 1000000);
+        return xrpAmount >= 100;
     }
 }

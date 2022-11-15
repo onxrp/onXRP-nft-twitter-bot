@@ -30,6 +30,6 @@ export class TweetFormatter {
         const formattedAmount = formatAmount(amount);
         const formattedUsd = usdPrice != null ? ` (${usdPrice.toFixed(2)} USD)` : '';
 
-        return `XPUNK #${nftNumber || partialNftId} bought for ${formattedAmount}${formattedUsd} by ${formattedAccount} from ${formattedIssuer}. \n\n ${marketUrl}`;
+        return `XPUNK #${nftNumber || partialNftId} bought for ${formattedAmount}${formattedUsd} by ${formattedAccount} from ${formattedIssuer}.\n\n ${marketUrl}\n\n#XPUNKS #onXRP`;
     }
 }

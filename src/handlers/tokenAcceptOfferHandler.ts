@@ -3,7 +3,7 @@ import { getBalanceChanges, NFTokenAcceptOffer, parseNFTokenID, TransactionStrea
 import { log } from "../utils/logger";
 import { TokenIssuer } from "../configuration";
 import { TweetFormatter } from "../utils/tweetFormatter";
-import { getCoinPrice, getNftInfo } from "../utils/helpers";
+import { checkAmountValidity, getCoinPrice, getNftInfo } from "../utils/helpers";
 import { Amount } from "xrpl/dist/npm/models/common";
 import { TwitterClient } from "../utils/twitterClient";
 
@@ -44,6 +44,12 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
     }
 
     const amount = getAmountFromTransaction(tx);
+
+    if (!checkAmountValidity(amount)) {
+        log(`Amount ${JSON.stringify(amount)} didn't pass checks (XRP should be more than 100, XPUNK token should be skipped)`);
+        return;
+    }
+
     const usdPrice = await getCoinPrice(amount);
 
     await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, nftInfo.nftNumber, usdPrice), nftInfo.image);
