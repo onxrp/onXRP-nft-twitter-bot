@@ -10,6 +10,11 @@ import { TwitterApiV2Client } from "./utils/twitterClient";
 
 let intervalTimer: NodeJS.Timer;
 let checkNumber = 0;
+let subscribeInterval = 600000; // 10 minutes
+
+function getSubsribeMessage(subscriptionNumber: number) {
+    return `Check all transactions in XRP №${subscriptionNumber++}`;
+}
 
 export async function runApplication() {
     try {
@@ -24,16 +29,24 @@ export async function runApplication() {
         log("Starting interval to subscribe for XRP events!");
 
         async function subscribe() {
+            if (checkNumber > 0) {
+                log(`Unsubscribing for updates from XRP! #${checkNumber}`);
+                await client.request({
+                    id: getSubsribeMessage(checkNumber),
+                    command: "unsubscribe",
+                    streams: ["transactions"],
+                });
+            }
+            log(`Subscribing for updates from XRP! #${checkNumber + 1}`);
             await client.request({
-                id: `Check all transactions in XRP №${checkNumber++}`,
+                id: getSubsribeMessage(checkNumber++),
                 command: "subscribe",
                 streams: ["transactions"],
             });
-            log("Subscribed for updates from XRP!");
         }
 
         await subscribe();
-        intervalTimer = setInterval(subscribe, 600000); // 10 minutes
+        intervalTimer = setInterval(subscribe, subscribeInterval);
 
         client.on("transaction", async tx => {
             const transactionType = tx?.transaction?.TransactionType;
