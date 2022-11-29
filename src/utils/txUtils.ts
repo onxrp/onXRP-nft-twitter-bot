@@ -46,10 +46,10 @@ export function parseAcceptOfferTx(tx: TxWithMeta) {
     const sellOffer = meta?.find(m => m.finalFields?.Flags === 1);
     const buyOffer = meta?.find(m => m.finalFields?.Flags === 0);
 
-    const nftId = sellOffer?.finalFields?.NFTokenID;
-    const amount = buyOffer?.finalFields?.Amount as Amount;
+    const nftId = sellOffer?.finalFields?.NFTokenID || buyOffer?.finalFields?.NFTokenID;
+    const amount = (buyOffer?.finalFields?.Amount || sellOffer?.finalFields?.Amount) as Amount;
     const previousOwner = sellOffer?.finalFields?.Owner;
-    const newOwner = buyOffer?.finalFields?.Owner;
+    const newOwner = buyOffer?.finalFields?.Owner || sellOffer?.finalFields?.Destination;
 
     const parseResult = {
         sellOffer,
