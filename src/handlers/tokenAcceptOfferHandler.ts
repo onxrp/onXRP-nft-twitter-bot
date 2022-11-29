@@ -1,11 +1,11 @@
-import { getBalanceChanges, NFTokenAcceptOffer, parseNFTokenID, TransactionStream } from "xrpl";
+import { NFTokenAcceptOffer, parseNFTokenID, TransactionStream } from "xrpl";
 
 import { log } from "../utils/logger";
 import { TokenIssuer } from "../configuration";
 import { TweetFormatter } from "../utils/tweetFormatter";
 import { checkAmountValidity, getCoinPrice, getNftInfo } from "../utils/helpers";
-import { Amount } from "xrpl/dist/npm/models/common";
 import { TwitterClient } from "../utils/twitterClient";
+import { parseAcceptOfferTx } from "../utils/txUtils";
 
 export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClient: TwitterClient) {
     const transaction = tx.transaction as NFTokenAcceptOffer;
@@ -15,7 +15,10 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
         return;
     }
 
-    const nftId = getNftIdFromTransaction(tx);
+    const { previousOwner, newOwner, nftId, amount } = parseAcceptOfferTx({
+        ...tx.transaction,
+        meta: tx.meta,
+    })
 
     if (nftId == null) {
         log("Nft id from transaction is null!");
@@ -29,9 +32,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
         return;
     }
 
-    const account = getAccountFromTransaction(tx);
-
-    if (account == null) {
+    if (previousOwner == null || newOwner == null) {
         log("Account is null. Probably something went wrong!");
         return;
     }
@@ -43,8 +44,6 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
         return;
     }
 
-    const amount = getAmountFromTransaction(tx);
-
     if (!checkAmountValidity(amount)) {
         log(`Amount ${JSON.stringify(amount)} didn't pass checks (XRP should be more than 100, XPUNK token should be skipped)`);
         return;
@@ -52,29 +51,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
 
     const usdPrice = await getCoinPrice(amount);
 
-    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, nftInfo.nftName, usdPrice), nftInfo.image);
+    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(newOwner, amount, nftId, previousOwner, nftInfo.nftName, usdPrice), nftInfo.image);
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
-}
-
-function getNftIdFromTransaction(tx: TransactionStream): string | undefined {
-    const affectedNodeWithNftId = tx.meta?.AffectedNodes.find((an: any) => an.DeletedNode?.LedgerEntryType === "NFTokenOffer");
-    const nftId = (affectedNodeWithNftId as any)?.DeletedNode?.FinalFields?.NFTokenID;
-    return nftId;
-}
-
-function getAmountFromTransaction(tx: TransactionStream): Amount {
-    const affectedNodeWithNftId = tx.meta?.AffectedNodes.find((an: any) => an.DeletedNode?.LedgerEntryType === "NFTokenOffer");
-    const amount = (affectedNodeWithNftId as any)?.DeletedNode?.FinalFields?.Amount;
-    return amount;
-}
-
-function getAccountFromTransaction(tx: TransactionStream): string | undefined {
-    if (tx.meta == null) {
-        return;
-    }
-
-    const balanceChanges = getBalanceChanges(tx.meta);
-    const balanceChange = balanceChanges.find(bc => +bc.balances[0].value < 0);
-    return balanceChange?.account;
 }

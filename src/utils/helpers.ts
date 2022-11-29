@@ -1,6 +1,6 @@
 import axios from "axios";
 import { fileTypeFromBuffer } from "file-type";
-import { Client, convertHexToString } from "xrpl";
+import { Client, convertHexToString, parseNFTokenID } from "xrpl";
 import { Amount, IssuedCurrencyAmount } from "xrpl/dist/npm/models/common";
 
 import { ApiCoinMetaUrl, ApiMetadataUrl, CoinmarketcapApikey, CoinmarketcapPriceConversionUrl, IpfsUrl, XrpClioServer } from "../configuration";
@@ -110,7 +110,11 @@ const currencyIssuerMap: Record<string, string> = {
     "OXP": "rrno7Nj4RkFJLzC4nRaZiLF5aHwcTVon3d",
 }
 
-export function formatAmount(amount: Amount) {
+export function formatAmount(amount?: Amount) {
+    if (amount == null) {
+        return null;
+    }
+    
     let formattedAmount = null;
 
     if ((amount as IssuedCurrencyAmount).value != null) {

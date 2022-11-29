@@ -22,14 +22,14 @@ export class TweetFormatter {
         return `XPUNKS Sale!\n${formattedAccount} wants to buy NFT #${partialNftId} for ${formattedAmount} from ${formattedIssuer}.\n${marketUrl}`;
     }
 
-    static getTokenAcceptOfferMessage(account: string, amount: Amount, nftId: string, issuer: string, nftName: string | undefined, usdPrice: number | undefined): string {
+    static getTokenAcceptOfferMessage(account: string, amount: Amount, nftId: string, previousOwner: string, nftName: string | undefined, usdPrice: number | undefined): string {
         // const partialNftId = nftId.substring(nftId.length - 4);
         const formattedAccount = account.substring(0, 8);
-        const formattedIssuer = issuer.substring(0, 8);
+        const formattedPreviousOwner = previousOwner.substring(0, 8);
         const marketUrl = `${MarketplaceUrl}/${nftId}`;
         const formattedAmount = formatAmount(amount);
         const formattedUsd = usdPrice != null ? ` (${usdPrice.toFixed(2)} USD)` : '';
 
-        return `${nftName} bought for ${formattedAmount}${formattedUsd} by ${formattedAccount} from ${formattedIssuer}.\n\n ${marketUrl}\n\n#XPUNKS #onXRP`;
+        return `${nftName} bought for ${formattedAmount}${formattedUsd} by ${formattedAccount} from ${formattedPreviousOwner}.\n\n ${marketUrl}\n\n#XPUNKS #onXRP`;
     }
 }
