@@ -52,7 +52,7 @@ export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClie
 
     const usdPrice = await getCoinPrice(amount);
 
-    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, nftInfo.nftNumber, usdPrice), nftInfo.image);
+    await twitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(account, amount, nftId, nftsIssuer, nftInfo.nftName, usdPrice), nftInfo.image);
 
     log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }
