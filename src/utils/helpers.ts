@@ -58,10 +58,11 @@ export async function getNftInfo(nftId: string): Promise<{ image: string | undef
         // }
 
         const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`);
+        const { image, name } = metadataResponse?.data?.metadata || {};
 
         return {
-            image: metadataResponse.data?.image,
-            nftName: metadataResponse.data?.name,
+            image: image,
+            nftName: name,
         }
 
         // Code below needed when ipfs uri leads to metadata instead of image.
@@ -114,7 +115,7 @@ export function formatAmount(amount?: Amount) {
     if (amount == null) {
         return null;
     }
-    
+
     let formattedAmount = null;
 
     if ((amount as IssuedCurrencyAmount).value != null) {
