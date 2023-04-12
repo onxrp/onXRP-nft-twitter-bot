@@ -74,6 +74,8 @@ export async function runApplication() {
         if (intervalTimer != null) {
             clearInterval(intervalTimer);
         }
-        throw err;
+        console.log("Error occured while running application: ", err);
+        console.log("Restarting application");
+        runApplication();
     }
 };
