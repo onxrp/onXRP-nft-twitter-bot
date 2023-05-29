@@ -58,7 +58,7 @@ export async function getNftInfo(nftId: string): Promise<{ image: string | undef
         // }
 
         const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`);
-        const { image, name } = metadataResponse?.data?.metadata || {};
+        const { image, name } = metadataResponse?.data || {};
 
         return {
             image: image,
