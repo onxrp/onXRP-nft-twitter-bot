@@ -83,11 +83,13 @@ export async function uploadUriToTwitterMedia(uri: string, twitterClient: Twitte
 
 const currencyMap: Record<string, string> = {
     "5850554E4B000000000000000000000000000000": "XPUNK",
+    
     "OXP": "OXP",
 };
 
 const currencyIssuerMap: Record<string, string> = {
     "5850554E4B000000000000000000000000000000": "rHEL3bM4RFsvF8kbQj3cya8YiDvjoEmxLq",
+
     "OXP": "rrno7Nj4RkFJLzC4nRaZiLF5aHwcTVon3d",
 }
 
