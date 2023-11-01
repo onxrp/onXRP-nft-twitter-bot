@@ -3,12 +3,17 @@ import { log } from "../utils/logger";
 import { TokenIssuer, validTokenIssuers  } from "../configuration";
 import { TweetFormatter } from "../utils/tweetFormatter";
 import { checkAmountValidity, getCoinPrice, getNftInfo } from "../utils/helpers";
-import { TwitterApiV2Client, TwitterClient } from "../utils/twitterClient";
+import { TwitterApiV2Client } from "../utils/twitterClient";
 import { parseAcceptOfferTx } from "../utils/txUtils";
+import { DiscordClient } from '../utils/discordClient'; 
 
 
+
+// Create a Discord client instance
+const discordClientInstance = new DiscordClient();
 
 // function to get the Twitter client  based on the NFT collection
+
 function getTwitterClientIndex({ collectionName }: { collectionName: string; }): number | undefined {
     
     const collectionToIndexMap: { [key: string]: number } = {
@@ -19,6 +24,15 @@ function getTwitterClientIndex({ collectionName }: { collectionName: string; }):
     return collectionToIndexMap[collectionName];
 }
 
+// Map collection names to Discord channel IDs
+function getDiscordChannelId({ collectionName }: { collectionName: string; }): string | undefined {
+    const collectionToChannelIdMap: { [key: string]: string } = {
+        'Xpunks': process.env.DISCORD_XPUNKS_CHANNEL_ID as string,
+        'Unixpunks': process.env.DISCORD_UNIXPUNKS_CHANNEL_ID as string,
+        'Eden-Properties': process.env.DISCORD_EDEN_PROPERTIES_CHANNEL_ID as string,
+    };
+    return collectionToChannelIdMap[collectionName];
+}
 export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClients: TwitterApiV2Client[]) {
     
     const issuerCollectionMapping: { [key: string]: string } = {
@@ -85,5 +99,13 @@ if (specificClientIndex === undefined) {
 const specificTwitterClient = twitterClients[specificClientIndex];
     await specificTwitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(newOwner, amount, nftId, previousOwner, nftInfo.nftName, usdPrice), nftInfo.image);
 
-log(`Successfully posted new tweet for token ${nftId} with updates!`);
+    const discordChannelId = getDiscordChannelId({ collectionName: nftCollection });
+    if (discordChannelId) {
+        const message = TweetFormatter.getTokenAcceptOfferMessage(newOwner, amount, nftId, previousOwner, nftInfo.nftName, usdPrice); // Reusing tweet formatter
+        discordClientInstance.sendMessage(discordChannelId, message, nftInfo.image);
+    }
+
+    log(`Successfully posted new tweet for token ${nftId} with updates!`);
 }
+
+

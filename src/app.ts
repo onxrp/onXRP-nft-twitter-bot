@@ -6,6 +6,8 @@ import { XrpServer, TwitterAccounts, issuerCollectionMapping, validTokenIssuers 
 import { log } from "./utils/logger";
 import { ValidTransactions } from "./constants";
 import { TwitterApiV2Client } from "./utils/twitterClient";
+import { DiscordClient } from './utils/discordClient';
+
 
 
 let intervalTimer: NodeJS.Timer;
@@ -22,6 +24,9 @@ export async function runApplication() {
 
         const client = new Client(XrpServer);
         await client.connect();
+        // Initialize Discord Client
+        const discordClient = new DiscordClient();
+        await discordClient.initialize(process.env.DISCORD_BOT_TOKEN as string);
 
         // Twitter clients for all accounts
         const twitterClients = TwitterAccounts.map(account =>
@@ -58,38 +63,15 @@ export async function runApplication() {
 
         client.on("transaction", async tx => {
             const transactionType = tx?.transaction?.TransactionType;
-            if (transactionType != null && ValidTransactions.indexOf(transactionType) >= 0) {
+        
+            if (transactionType && ValidTransactions.indexOf(transactionType) >= 0) {
                 log(`Received update for transaction ${transactionType}`);
                 log(`TX ${tx.transaction.hash}`);
                 
-                const nftsIssuer = tx.transaction.Account; 
-                
-                // Validate the issuer
-                if (!validTokenIssuers.includes(nftsIssuer)) {
-                    log(`Issuer ${nftsIssuer} is not valid. Skipping transaction.`);
-                    return;
-                }
-        
-                // Determine which Twitter client to use based on the NFT collection
-                const nftCollection = issuerCollectionMapping[nftsIssuer];
-                if (!nftCollection) {
-                    log(`NFT Collection for issuer ${nftsIssuer} not found. Skipping transaction.`);
-                    return;
-                }
-        
-                // Find the index of the Twitter account associated with the collection
-                const specificClientIndex = TwitterAccounts.findIndex(account => account.collectionName === nftCollection);
-                if (specificClientIndex === -1) {
-                    log(`Twitter account for collection ${nftCollection} not found. Skipping transaction.`);
-                    return;
-                }
-                
-                const specificClient = twitterClients[specificClientIndex];
-                
                 switch (transactionType) {
-                   
                     case "NFTokenAcceptOffer":
                         await tokenAcceptOfferHandler(tx, twitterClients);
+
                         break;
                 }
                 
@@ -101,6 +83,7 @@ export async function runApplication() {
         if (intervalTimer != null) {
             clearInterval(intervalTimer);
         }
+       
         console.log("Error occurred while running application: ", err);
         console.log("Restarting application");
         runApplication();
