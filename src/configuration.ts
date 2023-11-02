@@ -6,7 +6,7 @@ export const XrpClioServer = process.env.XRP_CLIO_SERVER as string;
 export const IpfsUrl = process.env.IPFS_URL as string;
 
 //  multiple Twitter accounts
-interface TwitterAccount {
+interface TwitterAccounts {
     apiKey: string;
     apiKeySecret: string;
     accessToken: string;
@@ -37,6 +37,12 @@ export const TwitterAccounts = [
       },
 
   ];
+
+export const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+export const DISCORD_XPUNKS_CHANNEL_ID = process.env.DISCORD_XPUNKS_CHANNEL_ID;
+export const DISCORD_UNIXPUNKS_CHANNEL_ID = process.env.DISCORD_UNIXPUNKS_CHANNEL_ID;
+export const DISCORD_EDEN_PROPERTIES_CHANNEL_ID = process.env.DISCORD_EDEN_PROPERTIES_CHANNEL_ID;
+export const DISCORD_ONXRP_CHANNEL_ID = process.env.DISCORD_ONXRP_CHANNEL_ID;
 
 export const MarketplaceUrl = process.env.MARKETPLACE_URL as string;
 export const ApiMetadataUrl = process.env.API_METADATA_URL as string;
