@@ -37,18 +37,21 @@ export async function downloadImageAsBase64(url: string): Promise<string | undef
     }
 }
 
-export async function getNftInfo(nftId: string): Promise<{ image: string | undefined, nftName: string | undefined } | undefined> {
+export async function getNftInfo(nftId: string): Promise<{
+    rarity_rank: any; image: string | undefined, nftName: string | undefined 
+} | undefined> {
     try {
         const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`, {
             params: {
                 refresh: true,
             }
         });
-        const { image, name } = metadataResponse?.data || {};
+        const { image, name, rarity_rank } = metadataResponse?.data || {};
 
         return {
             image: image,
             nftName: name,
+            rarity_rank: rarity_rank || 0,
         }
     }
     catch (err) {
