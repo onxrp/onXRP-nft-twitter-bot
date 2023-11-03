@@ -13,12 +13,12 @@ export interface TwitterClient {
 export class TwitJsClient implements TwitterClient {
     private twit: Twit;
 
-    constructor(credentials: { apiKey: string; apiKeySecret: string; accessToken: string; accessTokenSecret: string; }) {
+    constructor(credentials: { consumer_key: string; consumer_secret: string; accessToken: string; accessTokenSecret: string; }) {
         log("Using twit.js library to post tweets to Twitter!");
 
         this.twit = new Twit({
-            consumer_key: credentials.apiKey,
-            consumer_secret: credentials.apiKeySecret,
+            consumer_key: credentials.consumer_key,
+            consumer_secret: credentials.consumer_secret,
             access_token: credentials.accessToken,
             access_token_secret: credentials.accessTokenSecret,
         });
@@ -69,12 +69,12 @@ export class TwitJsClient implements TwitterClient {
 export class TwitterApiV2Client implements TwitterClient {
     private twitterApi: TwitterApi;
 
-    constructor(credentials: { appKey: string; appSecret: string; accessToken: string; accessSecret: string; }) {
+    constructor(credentials: { consumer_key: string; consumer_secret: string; accessToken: string; accessSecret: string; }) {
         log("Using twitter-api-v2 library to post tweets to Twitter!");
 
         this.twitterApi = new TwitterApi({
-            appKey: credentials.appKey,
-            appSecret: credentials.appSecret,
+            consumer_key: credentials.consumer_key,
+            consumer_secret: credentials.consumer_secret,
             accessToken: credentials.accessToken,
             accessSecret: credentials.accessSecret,
         });
@@ -122,8 +122,8 @@ export class TwitterApiV2Client implements TwitterClient {
 // Initialize Twitter clients for each account
 const twitterClients = TwitterAccounts.map(account => 
     new TwitJsClient({
-        apiKey: account.apiKey,
-        apiKeySecret: account.apiKeySecret,
+        consumer_key: account.consumer_key,
+        consumer_secret: account.consumer_secret,
         accessToken: account.accessToken,
         accessTokenSecret: account.accessTokenSecret
     })

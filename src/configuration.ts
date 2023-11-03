@@ -8,36 +8,37 @@ export const IpfsUrl = process.env.IPFS_URL as string;
 
 //  multiple Twitter accounts
 interface TwitterAccounts {
-    apiKey: string;
-    apiKeySecret: string;
+    consumer_key: string;
+    consumer_secret: string;
     accessToken: string;
     accessTokenSecret: string;
     collectionName: string;
   };
 export const TwitterAccounts = [
     {
-      apiKey: process.env.API_KEY_ACCOUNT_1 as string,
-      apiKeySecret: process.env.API_KEY_SECRET_ACCOUNT_1 as string,
+      consumer_key: process.env.CONSUMER_KEY_ACCOUNT_1 as string,
+      consumer_secret: process.env.CONSUMER_SECRET_ACCOUNT_1 as string,
       accessToken: process.env.ACCESS_TOKEN_ACCOUNT_1 as string,
       accessTokenSecret: process.env.ACCESS_TOKEN_SECRET_ACCOUNT_1 as string,
       collectionName: 'Xpunks',
     },
     {
-      apiKey: process.env.API_KEY_ACCOUNT_2 as string,
-      apiKeySecret: process.env.API_KEY_SECRET_ACCOUNT_2 as string,
+      consumer_key: process.env.CONSUMER_KEY_ACCOUNT_2 as string,
+      consumer_secret: process.env.CONSUMER_SECRET_ACCOUNT_2 as string,
       accessToken: process.env.ACCESS_TOKEN_ACCOUNT_2 as string,
       accessTokenSecret: process.env.ACCESS_TOKEN_SECRET_ACCOUNT_2 as string,
       collectionName: 'Unixpunks',
     },
     {
-        apiKey: process.env.API_KEY_ACCOUNT_3 as string,
-        apiKeySecret: process.env.API_KEY_SECRET_ACCOUNT_3 as string,
+        consumer_key: process.env.CONSUMER_KEY_ACCOUNT3 as string,
+        consumer_secret: process.env.CONSUMER_SECRET_ACCOUNT_3 as string,
         accessToken: process.env.ACCESS_TOKEN_ACCOUNT_3 as string,
         accessTokenSecret: process.env.ACCESS_TOKEN_SECRET_ACCOUNT_3 as string,
         collectionName: 'Eden-Properties',
       },
 
   ];
+  
 
 export const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 export const DISCORD_XPUNKS_CHANNEL_ID = process.env.DISCORD_XPUNKS_CHANNEL_ID;

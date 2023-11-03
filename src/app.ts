@@ -31,8 +31,8 @@ export async function runApplication() {
         // Twitter clients for all accounts
         const twitterClients = TwitterAccounts.map(account =>
             new TwitterApiV2Client({
-                appKey: account.apiKey,
-                appSecret: account.apiKeySecret,
+                consumer_key: account.consumer_key,
+                consumer_secret: account.consumer_secret,
                 accessToken: account.accessToken,
                 accessSecret: account.accessTokenSecret,
             })
