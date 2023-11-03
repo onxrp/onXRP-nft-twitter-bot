@@ -3,7 +3,7 @@ import { TwitterApi } from 'twitter-api-v2';
 import { fileTypeFromBuffer } from "file-type";
 import { downloadImageAsBase64, downloadImageAsBuffer, uploadUriToTwitterMedia } from "./helpers";
 import { log } from "./logger";
-import { TwitterAccounts } from "configuration"; 
+import { TwitterAccounts } from "../configuration"; 
 
 export interface TwitterClient {
     tweet(message: string, image?: any): Promise<any>;

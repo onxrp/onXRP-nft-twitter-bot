@@ -1,4 +1,5 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const TokenIssuer = process.env.TOKEN_ISSUER as string;
 export const XrpServer = process.env.XRP_SERVER || "wss://xrplcluster.com";
