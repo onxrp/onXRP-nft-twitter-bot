@@ -50,9 +50,10 @@ export async function getNftInfo(nftId: string): Promise<{
                 refresh: true,
             }
         });
-        const { image, name, rarity_rank, picture_url_thumbnail } = metadataResponse?.data || {};  
+        const { token_id,image, name, rarity_rank, picture_url_thumbnail } = metadataResponse?.data || {};  
 
         return {
+            token_id: token_id,
             image: image,
             nftName: name,
             rarity_rank: rarity_rank || 0,
