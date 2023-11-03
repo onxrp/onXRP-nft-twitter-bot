@@ -2,10 +2,13 @@ import { NFTokenAcceptOffer, parseNFTokenID, TransactionStream } from "xrpl";
 import { log } from "../utils/logger";
 import { TokenIssuer, validTokenIssuers  } from "../configuration";
 import { TweetFormatter } from "../utils/tweetFormatter";
-import { checkAmountValidity, getCoinPrice, getNftInfo } from "../utils/helpers";
+import { checkAmountValidity, formatAmount, getCoinPrice, getNftInfo } from "../utils/helpers";
 import { TwitterApiV2Client } from "../utils/twitterClient";
 import { parseAcceptOfferTx } from "../utils/txUtils";
 import { DiscordClient } from '../utils/discordClient'; 
+import { EmbedBuilder } from 'discord.js';
+
+import moment from "moment";
 
 
 
@@ -23,7 +26,15 @@ function getTwitterClientIndex({ collectionName }: { collectionName: string; }):
     };
     return collectionToIndexMap[collectionName];
 }
-
+// Map collection names to Discord role IDs
+const collectionToRoleIdMap: { [key: string]: string } = {
+    'Xpunks': process.env.DISCORD_XPUNKS_ROLE_ID as string,
+    'Unixpunks': process.env.DISCORD_UNIXPUNKS_ROLE_ID as string,
+    'Eden-Properties': process.env.DISCORD_EDEN_PROPERTIES_ROLE_ID as string,
+};
+function getDiscordRoleId({ collectionName }: { collectionName: string; }): string | undefined {
+    return collectionToRoleIdMap[collectionName];
+}
 // Map collection names to Discord channel IDs
 function getDiscordChannelId({ collectionName }: { collectionName: string; }): string | undefined {
     const collectionToChannelIdMap: { [key: string]: string } = {
@@ -33,6 +44,7 @@ function getDiscordChannelId({ collectionName }: { collectionName: string; }): s
     };
     return collectionToChannelIdMap[collectionName];
 }
+
 export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClients: TwitterApiV2Client[]) {
     
     const issuerCollectionMapping: { [key: string]: string } = {
@@ -100,12 +112,58 @@ const specificTwitterClient = twitterClients[specificClientIndex];
     await specificTwitterClient.tweet(TweetFormatter.getTokenAcceptOfferMessage(newOwner, amount, nftId, previousOwner, nftInfo.nftName, usdPrice), nftInfo.image);
 
     const discordChannelId = getDiscordChannelId({ collectionName: nftCollection });
-    if (discordChannelId) {
-        const message = TweetFormatter.getTokenAcceptOfferMessage(newOwner, amount, nftId, previousOwner, nftInfo.nftName, usdPrice); // Reusing tweet formatter
-        discordClientInstance.sendMessage(discordChannelId, message, nftInfo.image);
-    }
+    const roleId = getDiscordRoleId({ collectionName: nftCollection });  // Fetching the Role ID based on collection name
 
-    log(`Successfully posted new tweet for token ${nftId} with updates!`);
+    if (discordChannelId && roleId) {
+        const embed = new EmbedBuilder()
+            .setColor("#FFFFFF")
+            .setTitle(nftInfo.nftName ?? 'NFT Transaction')
+            .setURL(`https://nft.onxrp.com/nft/${nftInfo.token_id}`)
+            .setAuthor({ 
+                name: 'XPUNKS Sales (@XRPLPUNKSBOT)', 
+                iconURL: 'https://nftimg.onxrp.com/bradleypunkhouse_blackwhite.jpg', 
+                url: 'https://twitter.com/XRPLPUNKSBOT' 
+            })
+            .setFields([
+                {
+                    name: "Sold for",
+                    value: `${nftId.formattedAmount}${nftId.formattedUsd}`,
+                },
+                {
+                    name: "Seller",
+                    value: `${nftId.formattedPreviousOwner}`,
+                },
+                {
+                    name: "Buyer",
+                    value: `${nftId.nftformattedAccount} `,
+                },
+                {
+                    name: "Rank",
+                    value: `${nftInfo.rarity_rank}`
+                },
+            ])
+            .setImage(nftInfo.picture_url_thumbnail ?? `https://marketplace-api.onxrp.com/api/image/${nftInfo.token_id}`)
+            .setTimestamp(moment(nftId.created_at).toDate())
+            .setFooter({
+                text: `Powered by XPUNKS`,
+                iconURL: "https://nftimg.onxrp.com/bradleypunkhouse_blackwhite.jpg",
+            });
+
+        
+
+            const channel = discordClientInstance.channels.cache.get(discordChannelId);
+            if (channel && channel.isText()) {
+                channel.send({
+                    content: `<@&${roleId}>`,
+                    embeds: [embed]
+                });
+
+        }
+  
+
+    log(`Successfully posted new tweet for token ${nftId.token_id} with updates!`);
+    log(`Successfully posted token ${nftId} accept offer update on Discord!`);
+
 }
 
-
+}

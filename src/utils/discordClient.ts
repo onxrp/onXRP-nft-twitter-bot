@@ -3,6 +3,7 @@ import { Client, TextChannel, ClientOptions, IntentsBitField  } from 'discord.js
 export class DiscordClient {
     private client: Client;
     private isInitialized: boolean;
+    channels: any;
 
     constructor() {
         const options: ClientOptions = {

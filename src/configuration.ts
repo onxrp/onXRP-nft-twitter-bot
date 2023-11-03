@@ -12,7 +12,7 @@ interface TwitterAccounts {
     accessToken: string;
     accessTokenSecret: string;
     collectionName: string;
-  }
+  };
 export const TwitterAccounts = [
     {
       apiKey: process.env.API_KEY_ACCOUNT_1 as string,
@@ -63,4 +63,10 @@ export const validTokenIssuers = [
     'rMgcSs3HQjvy3ZM2FVsxqgUrudVPM7HP5m': 'Unixpunks',
     'rhqfdeNZRx9sMHZb197gwA6dj11uDKv8RD': 'Eden-Properties',
     
+};
+
+export const DiscordRoles = {
+    XPUNKS: process.env.DISCORD_XPUNKS_ROLE_ID,
+    UNIXPUNKS: process.env.DISCORD_UNIXPUNKS_ROLE_ID,
+    EDEN_PROPERTIES: process.env.DISCORD_EDEN_PROPERTIES_ROLE_ID
 };

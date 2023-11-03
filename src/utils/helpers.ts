@@ -38,7 +38,11 @@ export async function downloadImageAsBase64(url: string): Promise<string | undef
 }
 
 export async function getNftInfo(nftId: string): Promise<{
-    rarity_rank: any; image: string | undefined, nftName: string | undefined 
+    token_id: any;
+    rarity_rank: any;
+    image: string | undefined;
+    nftName: string | undefined;
+    picture_url_thumbnail?: string;  
 } | undefined> {
     try {
         const metadataResponse = await axios.get(`${ApiMetadataUrl}/${nftId}`, {
@@ -46,12 +50,13 @@ export async function getNftInfo(nftId: string): Promise<{
                 refresh: true,
             }
         });
-        const { image, name, rarity_rank } = metadataResponse?.data || {};
+        const { image, name, rarity_rank, picture_url_thumbnail } = metadataResponse?.data || {};  
 
         return {
             image: image,
             nftName: name,
             rarity_rank: rarity_rank || 0,
+            picture_url_thumbnail: picture_url_thumbnail,  
         }
     }
     catch (err) {
