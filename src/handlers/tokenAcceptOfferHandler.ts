@@ -45,7 +45,7 @@ function getDiscordChannelId({ collectionName }: { collectionName: string; }): s
     return collectionToChannelIdMap[collectionName];
 }
 
-export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClients: TwitterApiV2Client[]) {
+export async function tokenAcceptOfferHandler(tx: TransactionStream, twitterClients: TwitterApiV2Client[], discordClientInstance: DiscordClient) {
     
     const issuerCollectionMapping: { [key: string]: string } = {
         'rHEL3bM4RFsvF8kbQj3cya8YiDvjoEmxLq': 'Xpunks',

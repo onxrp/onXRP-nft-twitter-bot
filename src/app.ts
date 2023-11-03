@@ -70,9 +70,8 @@ export async function runApplication() {
                 
                 switch (transactionType) {
                     case "NFTokenAcceptOffer":
-                        await tokenAcceptOfferHandler(tx, twitterClients);
-
-                        break;
+                    await tokenAcceptOfferHandler(tx, twitterClients, discordClient);
+                break;
                 }
                 
                 log(`Processed update for transaction ${transactionType}`);
