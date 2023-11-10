@@ -73,8 +73,8 @@ export class TwitterApiV2Client implements TwitterClient {
         log("Using twitter-api-v2 library to post tweets to Twitter!");
 
         this.twitterApi = new TwitterApi({
-            consumer_key: credentials.consumer_key,
-            consumer_secret: credentials.consumer_secret,
+            appKey: credentials.consumer_key,
+            appSecret: credentials.consumer_secret,
             accessToken: credentials.accessToken,
             accessSecret: credentials.accessSecret,
         });
