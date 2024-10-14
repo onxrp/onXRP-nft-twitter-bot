@@ -118,7 +118,7 @@ const specificTwitterClient = twitterClients[specificClientIndex];
         const embed = new EmbedBuilder()
             .setColor("#FFFFFF")
             .setTitle(nftInfo.nftName ?? 'NFT Transaction')
-            .setURL(`https://nft.onxrp.com/nft/${nftInfo.token_id}`)
+            .setURL(`https://bidds.com/nft/${nftInfo.token_id}`)
             .setAuthor({ 
                 name: 'XPUNKS Sales (@XRPLPUNKSBOT)', 
                 iconURL: 'https://nftimg.onxrp.com/bradleypunkhouse_blackwhite.jpg', 
@@ -142,7 +142,7 @@ const specificTwitterClient = twitterClients[specificClientIndex];
                     value: `${nftInfo.rarity_rank}`
                 },
             ])
-            .setImage(nftInfo.picture_url_thumbnail ?? `https://marketplace-api.onxrp.com/api/image/${nftInfo.token_id}`)
+            .setImage(nftInfo.picture_url_thumbnail ?? `https://api.bidds.com/api/image/${nftInfo.token_id}`)
             .setTimestamp(moment(nftId.created_at).toDate())
             .setFooter({
                 text: `Powered by XPUNKS`,
